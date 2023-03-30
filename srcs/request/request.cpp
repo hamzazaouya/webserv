@@ -25,6 +25,7 @@ void    Request::fill_map_request(std::string   &buff_line)
     std::stringstream ss(buff_line);
     std::string token;
     ss >> token;
+    //YOU SHO
     if (token == "GET" || token == "POST" || token == "DELETE")
     {
         this->method = token;

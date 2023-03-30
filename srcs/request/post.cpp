@@ -40,6 +40,7 @@ int Post::Treat_Post(Client *ctl, Server &serv)
         return (0);
     else
         return(-1);
+
 }
 
 void    Post::create_file(Server &serv, Client *client)
