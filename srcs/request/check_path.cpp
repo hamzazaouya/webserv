@@ -174,7 +174,7 @@ void    Check_path::is_method_allowed_in_location(std::list<Client *>::iterator 
         if ((*iter)->method == (*it))
             break ;
     }
-    if ((*iter)->method != (*it))
+    if ((*it) != "GET" || (*it) != "DELETE" || (*it) != "POST")
     {
         std::cout<<"error / 405 method not allowed"<<std::endl;
         this->skip = 1;
