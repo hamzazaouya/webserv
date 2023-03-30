@@ -1,7 +1,9 @@
 NAME = webserv
 SOURCES = main.cpp parsing/webserv.cpp parsing/location.cpp parsing/parce_server.cpp \
 					server/client.cpp server/server.cpp server/socket.cpp \
-					request/request.cpp request/post.cpp request/get.cpp request/check_path.cpp request/normal_post.cpp request/delete.cpp
+					request/request.cpp request/post.cpp request/get.cpp \
+					request/check_path.cpp request/normal_post.cpp request/delete.cpp \
+					request/chunked_post.cpp 
 OBJ_PATH  = objs
 SRC_PATH = srcs
 

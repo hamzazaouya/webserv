@@ -16,7 +16,7 @@ class Request
 
     public:
 
-        int                                                 content_type;
+        int                                                 _content_type;
         std::string                                         method;
         std::string                                         path;
         std::string                                         query;
@@ -25,6 +25,6 @@ class Request
         std::map<std::string, std::vector<std::string> >    request;
 
         Request();
-        Request(std::string &buffer, std::list<Client *>::iterator   iter);
+        Request(char *buffer, std::list<Client *>::iterator   iter);
 };
 #endif

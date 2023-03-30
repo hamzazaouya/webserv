@@ -24,9 +24,10 @@ class Webserv
         Webserv(std::string conf_file);
         ~Webserv();
 
+        std::map<std::string, std::string> file_extensions;
+    
         void init_servers();
         void run_webservs();
         void generate_extensions(void);
-        std::map<std::string, std::string> file_extensions;
 };
 # endif

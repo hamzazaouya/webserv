@@ -8,7 +8,7 @@ Check_path::Check_path(std::list<Client *>::iterator iter, Server &serv): skip(0
 
 void   Check_path::check_transfer_encoding(std::list<Client *>::iterator iter, Server &serv)
 {
-    // (*iter)->path, (*iter)->request_pack, (*iter)->content_type,
+    // (*iter)->path, (*iter)->request_pack, (*iter)->_content_type,
     std::map<std::string, std::vector<std::string> > map_req = (*iter)->request_pack;
     std::map<std::string, std::vector<std::string> >::iterator m_ap = map_req.find("Transfer-Encoding");
     if (m_ap != map_req.end())
@@ -17,8 +17,9 @@ void   Check_path::check_transfer_encoding(std::list<Client *>::iterator iter, S
         std::vector<std::string>::iterator itt = vec.begin();
         if (itt == vec.end())
         {
-            std::cout<< "Transfer-Encoding with empty value empty error /501"<<std::endl;
+            std::cout<< "Transfer-Encoding with empty value error /501 not implemented"<<std::endl;
             // drop_client(iter);
+            this->skip = 1;
             return ;
         }
         else
@@ -35,7 +36,7 @@ void   Check_path::check_transfer_encoding(std::list<Client *>::iterator iter, S
                 }
                 else
                 {
-                    if ((*iter)->content_type == 1)
+                    if ((*iter)->_content_type == 1)
                     {
                         std::cout<<"Transfer-Encoding(chunked) and boundry error not implemented"<<std::endl;
                         //set_error page of not implemented
@@ -43,12 +44,12 @@ void   Check_path::check_transfer_encoding(std::list<Client *>::iterator iter, S
                         return ;
                     }
                     else
-                        (*iter)->content_type = 2;
+                        (*iter)->_content_type = 2;
                 }
             }
         }
     }
-    if (((*iter)->content_type == 0 || (*iter)->content_type == 1) && ((*iter)->method == "POST"))
+    if (((*iter)->_content_type == 0 || (*iter)->_content_type == 1) && ((*iter)->method == "POST"))
     {
         std::map<std::string, std::vector<std::string> > map_req = (*iter)->request_pack;
         std::map<std::string, std::vector<std::string> >::iterator m_ap = map_req.find("Content-Length");

@@ -14,6 +14,7 @@ Server::Server(parce_server &server_data, std::map<std::string, std::string> &fi
     Socket socket(this->_port);
     this->_server_socket = socket.get_socket();
     this->file_extensions = file_extensions;
+    std::map<std::string, std::string>::iterator iter;
 }
 
 std::list<location> Server::get_locations() const
@@ -43,8 +44,7 @@ void    Server::wait_on_clients()
     this->init_sockfds();
     restrict.tv_sec = 1;
     restrict.tv_usec = 0;
-    int x = select(this->_max_socket + 1, &(this->_reads), NULL, NULL, &restrict);
-    if (x < 0)
+    if (select(this->_max_socket + 1, &(this->_reads), NULL, NULL, &restrict) < 0)
     {
         std::cerr << "select() failed" << std::endl;
         exit(EXIT_FAILURE);
@@ -91,23 +91,23 @@ void    Server::serve_clients()
     std::list<Client *>::iterator   iter;
     for(iter = this->_clients.begin(); iter != this->_clients.end(); iter++)
     {
-        if(FD_ISSET((*iter)->get_sockfd(), &this->_reads))
+        // std::cout << "client number" << (*iter)->get_sockfd() << std::endl;
+        if(FD_ISSET((*iter)->get_sockfd(), &this->_reads) && !(*iter)->_is_ready)
         {
-            memset(this->_request_buff, 0, MAX_REQUEST_SIZE + 1);
-            this->_request_size = recv((*iter)->get_sockfd(), this->_request_buff, MAX_REQUEST_SIZE, 0);
+            memset(this->_request, 0, MAX_REQUEST_SIZE + 1);
+            this->_request_size = recv((*iter)->get_sockfd(), this->_request, MAX_REQUEST_SIZE, 0);
             if (this->_request_size < 1)
             {
                 std::cerr << "Unexpected disconnect from << " << get_client_address(*iter) << std::endl;
                 drop_client(iter);
-                continue;
+                continue ;
             }
             (*iter)->set_received_data(this->_request_size);
             if(!(*iter)->_request_type)
             {
-                (*iter)->_request.append(this->_request_buff);
-                if(std::strstr((*iter)->_request.c_str() , "\r\n\r\n"))
+                if(memmem(_request, _request_size, "\r\n\r\n", 4))
                 {
-                    Request req((*iter)->_request, iter);
+                    Request req(_request, iter);
                     Check_path path(iter, *this);
                     if (path.skip == 1)
                     {
@@ -117,49 +117,28 @@ void    Server::serve_clients()
                     }
                     else
                     {
-                        // std::cout<<"path : "<<(*iter)->location_match.get_locations()<<std::endl;
                         if(req.method == "POST")
                         {
-                                (*iter)->init_post_data();
-                                (*iter)->_request_type = true;
-                                // std::strcpy(this->_request_buff, (this->seperate_header((*iter)).c_str()));
-                                this->seperate_header((*iter));
-                                (*iter)->post.call_post_func(*this, (*iter));
+                            (*iter)->init_post_data();
+                            (*iter)->_request_type = true;
+                            this->seperate_header(*iter);
+                            (*iter)->post.call_post_func(*this, (*iter));
                         }
                         else if (req.method == "DELETE")
                             (*iter)->del.erase((*iter), *this);
-                        // std::cout<<"calling methods"<<std::endl;
                     }
                 }
-                else // this else is for just post becouse post containe the body.
-                {
-                    // std::cout<<"req_size : "<<(*iter)->_received_data<<std::endl;
-                    // if ((*iter)->_received_data > get_max_client_body_size())
-                    // {
-                    //     std::cout<<"error/ 413 request entity too large"<<std::endl;
-                    //     drop_client(iter);
-                    //     if (this->_clients.size() == 0)
-                    //             break ;
-                    // }
-                    (*iter)->post.call_post_func(*this, *iter);
-                }
-        // // else
-        // // {
-        // //     if((*iter)->method == "POST")
-        // //         (*iter)->file.close();
-        // //     exit(0);
-        // // }
-        // else
-        // {
-        //     if((*iter)->method == "POST")
-        //     {
-        //         std::cout << "clinet number = " << (*iter)->get_sockfd() - 3 << " is Done" << std::endl;
-        //         (*iter)->file.close();
-            // }
-        //     //drop_client(iter);
-        // }
+                // else
+                //     std::cout << "Your header is large" << std::endl;
             }
+            else // this else is for just post becouse post containe the body.
+                (*iter)->post.call_post_func(*this, *iter);
         }
+        else if(FD_ISSET((*iter)->get_sockfd(), &this->_writes) && (*iter)->_is_ready)
+        {
+            std::cout << "Hello world from ready to write" << std::endl;
+        }
+        std::cout << "hello from outside" << std::endl;
     }
 }
 
@@ -177,13 +156,17 @@ void    Server::drop_client(std::list<Client *>::iterator client)
     std::cerr << "Drop Client not found !" << std::endl;
 }
 
-Server::~Server() {}
-
 void Server::seperate_header(Client *client)
 {
-    char *body = strstr(this->_request_buff , "\r\n\r\n");
-    int x = body - this->_request_buff + 4;
-    this->_request_size -= x;
-    client->_received_data -= x;
-    std::memcpy(this->_request_buff, body + 4, this->_request_size);
+    int x = 4;
+    int pos = (char *) memmem(_request, _request_size, "\r\n\r\n", 4) - _request;
+
+    if(client->post._post_type == 2)
+        x = 2;
+    this->_request_size -= (pos + x);
+    for(int i = (pos + x); i < MAX_REQUEST_SIZE; i++)
+        _request[i - (pos + x)] = _request[i];
+    memset(_request + (MAX_REQUEST_SIZE - (pos + x)), 0, x);
 }
+
+Server::~Server() {}

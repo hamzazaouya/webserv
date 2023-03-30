@@ -1,7 +1,8 @@
 # include "request.hpp"
 
-Request::Request(std::string &buffer, std::list<Client *>::iterator   iter): content_type(0)
+Request::Request(char *buff, std::list<Client *>::iterator   iter): _content_type(0)
 {
+    std::string buffer(buff);
     std::stringstream ss(buffer);
     std::string token;
     int i = 0;
@@ -15,7 +16,7 @@ Request::Request(std::string &buffer, std::list<Client *>::iterator   iter): con
     (*iter)->path = this->path;
     (*iter)->query = this->query;
     (*iter)->http = this->http;
-    (*iter)->content_type = this->content_type;
+    (*iter)->_content_type = this->_content_type;
     (*iter)->boundary = this->boundary;
 }
 
@@ -53,7 +54,7 @@ void    Request::fill_map_request(std::string   &buff_line)
             if (ss >> token)
             {
                 value.push_back(token);
-                this->content_type = 1;
+                this->_content_type = 1;
                 this->boundary = &token[9];
             }   
         }

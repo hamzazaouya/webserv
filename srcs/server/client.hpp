@@ -20,11 +20,13 @@ class Client
         SOCKET  _sockfd;
         
     public:
-        DATA    _received_data;
+        int             _request_size;
+        int             _request_type;
+        int             _content_type;
+        int             _is_ready;
+        DATA            _received_data;
         std::map<std::string, std::vector<std::string> >  request_pack;
-        //std::vector<std::string> method
         std::string     method;
-        int             content_type;
         std::string     boundary;
         std::string     path;
         std::string     loc_path;
@@ -36,7 +38,6 @@ class Client
         socklen_t       _address_length;
         sock_storage    _address;
         std::string     _request;
-        int             _request_type;
         std::ofstream   file;
         std::string                                         file_path;
         Client();
