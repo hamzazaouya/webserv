@@ -44,7 +44,6 @@ void    Server::wait_on_clients()
     restrict.tv_sec = 1;
     restrict.tv_usec = 0;
     int x = select(this->_max_socket + 1, &(this->_reads), NULL, NULL, &restrict);
-    std::cout << x << std::endl;
     if (x < 0)
     {
         std::cerr << "select() failed" << std::endl;
@@ -108,7 +107,6 @@ void    Server::serve_clients()
                 (*iter)->_request.append(this->_request_buff);
                 if(std::strstr((*iter)->_request.c_str() , "\r\n\r\n"))
                 {
-                    std::cout<< (*iter)->_request<<std::endl;
                     Request req((*iter)->_request, iter);
                     Check_path path(iter, *this);
                     if (path.skip == 1)
@@ -122,11 +120,11 @@ void    Server::serve_clients()
                         // std::cout<<"path : "<<(*iter)->location_match.get_locations()<<std::endl;
                         if(req.method == "POST")
                         {
-                            (*iter)->init_post_data();
-                            (*iter)->_request_type = true;
-                            // std::strcpy(this->_request_buff, (this->seperate_header((*iter)).c_str()));
-                            this->seperate_header((*iter));
-                            (*iter)->post.call_post_func(*this, (*iter));
+                                (*iter)->init_post_data();
+                                (*iter)->_request_type = true;
+                                // std::strcpy(this->_request_buff, (this->seperate_header((*iter)).c_str()));
+                                this->seperate_header((*iter));
+                                (*iter)->post.call_post_func(*this, (*iter));
                         }
                         else if (req.method == "DELETE")
                             (*iter)->del.erase((*iter), *this);

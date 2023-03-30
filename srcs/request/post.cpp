@@ -11,11 +11,31 @@ Post::~Post(){}
 
 void    Post::call_post_func(Server &serv, Client *client)
 {
-    switch(this->_post_type)
+    std::cout << "Hi" << std::endl;
+    int x = Treat_Post(client, serv);
+    if (x == 0)
     {
-        case 0:
-            this->normal_post(serv, client);
+        std::cout << "No CGI" << std::endl;
+        switch(this->_post_type)
+        {
+            case 0:
+                this->normal_post(serv, client);
+        }
     }
+    else if (x == 1)
+        std::cout << "CGI" << std::endl;
+    else
+        std::cout << "Error!" << std::endl;
+}
+
+int Post::Treat_Post(Client *ctl, Server &serv)
+{
+    if (ctl->location_match.get_upload_pass().empty() && !ctl->location_match.get_cgi_pass().empty())
+        return (1);
+    else if (!ctl->location_match.get_upload_pass().empty())
+        return (0);
+    else
+        return(-1);
 }
 
 std::string Post::check_hexa(std::string buff)

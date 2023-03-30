@@ -24,6 +24,7 @@ class Post
         void        exec_body(std::string buff, Server &serv, std::string &path);
         int         skip_hex(std::string body);
         int         hexToDec(const std::string& hexStr);
+        int         Treat_Post(Client *ctl, Server &serv);
         std::string check_hexa(std::string buff);
 };
 #endif

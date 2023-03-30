@@ -81,7 +81,7 @@ void Delete::Treat_directory(Client *ctl, Server &serv)
     if (ctl->location_match.get_cgi_pass().empty())
         this->delete_directory(ctl, serv);
     else
-        std::cout << "Directory Has CGI" << std::endl;
+        std::cout << "Directory Has CGI with DELETE METHOD" << std::endl;
 }
 
 void Delete::Treat_File(Client *ctl, Server &serv)
@@ -89,7 +89,7 @@ void Delete::Treat_File(Client *ctl, Server &serv)
     if (ctl->location_match.get_cgi_pass().empty())
         remove(ctl->loc_path.c_str());
     else
-        std::cout << "File has CGI" << std::endl;
+        std::cout << "File has CGI with DELETE METHOD" << std::endl;
 }
 
 void Delete::erase(Client *ctl, Server &serv)
