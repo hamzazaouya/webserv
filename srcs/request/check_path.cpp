@@ -145,7 +145,8 @@ void    Check_path::get_matched_location_for_request_uri(std::list<Client *>::it
     }
     if (signe == 0)
     {
-        std::cout<<"location not found"<<std::endl;
+        std::cout << (*it).get_locations() << std::endl;
+        std::cout <<"location not found"<<std::endl;
         this->skip = 1;
         return ;
     }
@@ -174,8 +175,9 @@ void    Check_path::is_method_allowed_in_location(std::list<Client *>::iterator 
         if ((*iter)->method == (*it))
             break ;
     }
-    if ((*it) != "GET" || (*it) != "DELETE" || (*it) != "POST")
+    if ((*it) != "GET" && (*it) != "DELETE" && (*it) != "POST")
     {
+        std::cout << "-------> " << (*it) << std::endl;
         std::cout<<"error / 405 method not allowed"<<std::endl;
         this->skip = 1;
         return ;

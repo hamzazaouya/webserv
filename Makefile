@@ -8,7 +8,7 @@ OBJ_PATH  = objs
 SRC_PATH = srcs
 
 CC = c++
-CFLAGS = #-fsanitize=address #-Wall -Wextra -Werror
+CFLAGS = -fsanitize=address #-Wall -Wextra -Werror
 
 OBJS = $(addprefix $(OBJ_PATH)/,$(SOURCES:.cpp=.o))
 .PHONY: all clean fclean re

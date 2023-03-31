@@ -17,5 +17,7 @@
 #include <sys/stat.h>
 #include <algorithm>
 #include <fstream>
+#include <fcntl.h>
+#include <dirent.h>
 
 #endif

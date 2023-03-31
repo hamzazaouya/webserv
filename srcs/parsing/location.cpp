@@ -84,14 +84,13 @@ void location::FillAllow_methods(std::string prompt)
 void location::FillIndex(std::string prompt)
 {
     std::vector<std::string> substring = splitString(prompt, ' ');
-    // if (substring.size() < 2)
-    // {
-        // std::cout << "Error! there's something wrong with the index parameter" << std::endl;
-        // exit (1);
-    // }
+    if (substring.size() < 2)
+    {
+        std::cout << "Error! there's something wrong with the index parameter" << std::endl;
+        exit (1);
+    }
     if (substring.size() > 1)
     {
-        index.clear();
         for(std::vector<std::string>::iterator it = substring.begin() + 1; it != substring.end(); ++it)
             index.push_back(*it);
     }
@@ -172,9 +171,6 @@ void location::initialize()
     redirect.clear();
     auto_index = "off";
     root = "/var/www/html/";
-    index.push_back("index.html");
-    index.push_back("index.htm");
-    index.push_back("index.php");
     redirect = "404";
 }
 
