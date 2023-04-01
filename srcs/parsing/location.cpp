@@ -64,21 +64,15 @@ void location::FillLocation(std::string prompt)
 
 void location::FillAllow_methods(std::string prompt)
 {
-
     std::vector<std::string> substring = splitString(prompt, ' ');
     if (substring.size() < 2 || substring.size() > 4)
-        return;
+    {
+        std::cout << "There's something wrong with the allow_methods parameters" << std::endl;
+        exit (1);
+    }
     allow_methods.clear();
     for (std::vector<std::string>::iterator it = substring.begin() + 1 ; it != substring.end(); ++it)
-    {
-        if (*it == "POST" || *it == "GET" || *it == "DELETE")
             this->allow_methods.push_back(*it);
-        else
-        {
-            std::cout << "Error! Please ensure that the methods specified are either POST, GET or DELETE" << std::endl;
-            exit (1);
-        }
-    }
 }
 
 void location::FillIndex(std::string prompt)
@@ -101,9 +95,8 @@ void location::FillRedirect(std::string prompt)
     std::vector<std::string> substring = splitString(prompt, ' ');
     if (substring.size() != 2)
     {
-        // std::cout << "Error! there's something wrong with the redirect parameter" << std::endl;
-        // exit (1);
-        return;
+        std::cout << "Error! there's something wrong with the redirect parameter" << std::endl;
+        exit (1);
     }
     std::vector<std::string>::iterator it = substring.begin() + 1;
     this->redirect = *it;
@@ -114,8 +107,8 @@ void location::FillRoot(std::string prompt)
     std::vector<std::string> substring = splitString(prompt, ' ');
     if (substring.size() != 2)
     {
-         std::cout << "Error! there's something wrong with the root parameter" << std::endl;
-         exit (1);
+        std::cout << "Error! there's something wrong with the root parameter" << std::endl;
+        exit (1);
         return;
     }
     std::vector<std::string>::iterator it = substring.begin() + 1;
@@ -165,13 +158,8 @@ void location::FillAuto_index(std::string prompt)
 
 void location::initialize()
 {
-    allow_methods.push_back("GET");
-    allow_methods.push_back("POST");
-    allow_methods.push_back("DELETE");
-    redirect.clear();
     auto_index = "off";
     root = "/var/www/html/";
-    redirect = "404";
 }
 
 location::location(const std::list<std::string> &config, int j)

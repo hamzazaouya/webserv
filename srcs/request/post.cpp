@@ -66,7 +66,6 @@ void Post::Treat_file(Client *ctl)
 
 void Post::Treat_Post(Client *ctl, Server &serv)
 {
-    std::cout << "I'm inside TreatPost" << std::endl;
     DIR* dir = opendir(ctl->loc_path.c_str());
     if (dir != NULL)
     {
@@ -84,7 +83,6 @@ void Post::Treat_Post(Client *ctl, Server &serv)
     }
     else
         std::cout << "404 NOT FOUND" << std::endl;
-    exit(0);
 }
 
 void    Post::create_file(Server &serv, Client *client)
