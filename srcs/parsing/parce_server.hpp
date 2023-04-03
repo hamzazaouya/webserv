@@ -10,6 +10,7 @@ class parce_server
 {
     public :
 
+        // std::vector<int>                         port;
         int                         port;
         std::string                 host_name;
         int                         max_client_body_size;

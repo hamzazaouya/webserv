@@ -162,7 +162,6 @@ void location::FillAuto_index(std::string prompt)
 void location::initialize()
 {
     auto_index = "off";
-    root = "/var/www/html/";
 }
 
 location::location(const std::list<std::string> &config, int j)

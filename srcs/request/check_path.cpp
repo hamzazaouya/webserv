@@ -3,6 +3,7 @@
 
 Check_path::Check_path(std::list<Client *>::iterator iter, Server &serv): skip(0)
 {
+    (*iter)->redirect_301 = (*iter)->path;
     check_transfer_encoding(iter, serv);
 }
 
@@ -18,7 +19,25 @@ void   Check_path::check_transfer_encoding(std::list<Client *>::iterator iter, S
         if (itt == vec.end())
         {
             std::cout<< "Transfer-Encoding with empty value error /501 not implemented"<<std::endl;
-            // drop_client(iter);
+            (*iter)->status_code = 501;
+            (*iter)->status = "Not Implemented";
+            (*iter)->loc_path = "./default_error_pages/501.html";
+            // std::vector<std::string> error = (*iter)->error_pages;
+            // std::vector<std::string>::iterator it = error.begin();
+            // if (it != error.end())
+            // {
+            //     int num;
+            //     std::stringstream ss(*it);
+            //     ss >> num;
+            //     if (num != (*iter)->status_code)
+            //         (*iter)->loc_path = "./default_error_pages/501.html";
+            //     else
+            //     {
+            //         (*iter)->loc_path = ""
+            //     }
+            // }
+            // else
+            //     (*iter)->loc_path = "./default_error_pages/501.html";
             this->skip = 1;
             return ;
         }
@@ -28,8 +47,10 @@ void   Check_path::check_transfer_encoding(std::list<Client *>::iterator iter, S
             {
                 if ((*itt) != "chunked")
                 {
-                    std::cout<< "Transfer-Encoding not a match error /501 not implemented"<<std::endl;
-                    // drop_client(iter);
+                    // std::cout<< "Transfer-Encoding not a match error /501 not implemented"<<std::endl;
+                    (*iter)->status_code = 501;
+                    (*iter)->status = "Not Implemented";
+                    (*iter)->loc_path = "./default_error_pages/501.html";
                     std::cout<<"heeeer"<<std::endl;
                     this->skip = 1;
                     return ;
@@ -38,7 +59,10 @@ void   Check_path::check_transfer_encoding(std::list<Client *>::iterator iter, S
                 {
                     if ((*iter)->_content_type == 1)
                     {
-                        std::cout<<"Transfer-Encoding(chunked) and boundry error not implemented"<<std::endl;
+                        // std::cout<<"Transfer-Encoding(chunked) and boundry error not implemented"<<std::endl;
+                        (*iter)->status_code = 501;
+                        (*iter)->status = "Not Implemented";
+                        (*iter)->loc_path = "./default_error_pages/501.html";
                         //set_error page of not implemented
                         this->skip = 1;
                         return ;
@@ -60,18 +84,37 @@ void   Check_path::check_transfer_encoding(std::list<Client *>::iterator iter, S
             if (itt == vec.end())
             {
                 std::cout<< "Content-Length exist with no value error /400 bad request"<<std::endl;
+                (*iter)->status_code = 400;
+                (*iter)->status = "Bad Request";
+                (*iter)->loc_path = "./default_error_pages/400.html";
                 // drop_client(iter);
                 this->skip = 1;
                 return ;
             }
             else
             {
-                std::cout<<"con-len : "<<*itt<<std::endl;
+                std::string str = *itt;
+                std::stringstream ss(str);
+                int num = 0;
+                ss >> num;
+                if (num == 0)
+                {
+                    // std::cout<<"co_len : "<<*itt<<std::endl;
+                    std::cout<< "Content-Length eequale 0 /400 bad request"<<std::endl;
+                    (*iter)->status_code = 400;
+                    (*iter)->status = "Bad Request";
+                    (*iter)->loc_path = "./default_error_pages/400.html";
+                    this->skip = 1;
+                    return ;
+                }
             }
         }
         else
         {
             std::cout<< "Content-Length not exist error /400 bad request"<<std::endl;
+            (*iter)->status_code = 400;
+            (*iter)->status = "Bad Request";
+            (*iter)->loc_path = "./default_error_pages/400.html";
             // drop_client(iter);
             this->skip = 1;
             return ;
@@ -108,16 +151,22 @@ void    Check_path::check_uri(std::list<Client *>::iterator iter, Server &serv)
     if (len > 2048)
     {
         std::cout<<"request-URI- too long error /414"<<std::endl;
+        (*iter)->status_code = 414;
+        (*iter)->status = "URI-Too-Long";
+        (*iter)->loc_path = "./default_error_pages/414.html";
         // drop-client;
         this->skip = 1;
         return ;
     }
     if (!isURIValid(uri, len)) {
         std::cout << "URI have invalid characters error /400 bad request" << std::endl;
-        // drop-client;
+        (*iter)->status_code = 400;
+        (*iter)->status = "Bad Request";
+        (*iter)->loc_path = "./default_error_pages/400.html";
         this->skip = 1;
         return ;
     }
+    // must check the request entity max_client_body_size
     get_matched_location_for_request_uri(iter, serv);
 }
 
@@ -127,14 +176,14 @@ void    Check_path::get_matched_location_for_request_uri(std::list<Client *>::it
     std::list<location>::iterator it;
     int signe = 0;
     for(it = loc.begin(); it != loc.end(); it++)
-    {
+    { 
         if ((*iter)->path.find((*it).get_locations()) != std::string::npos)
         {
             int i = (*it).get_locations().length();
             if ((*iter)->path[i] == '/' || (*iter)->path.length() == i)
             {
                 signe  = 1;
-                std::cout<<"location found"<<std::endl;
+                // std::cout<<"location found"<<std::endl;
                 if (this->loc_path.length() < (*it).get_locations().length())
                 {
                     this->loc_path = (*it).get_locations();
@@ -145,8 +194,10 @@ void    Check_path::get_matched_location_for_request_uri(std::list<Client *>::it
     }
     if (signe == 0)
     {
-        std::cout << (*it).get_locations() << std::endl;
-        std::cout <<"location not found"<<std::endl;
+        // std::cout<<"location not found"<<std::endl;
+        (*iter)->status_code = 404;
+        (*iter)->status = "Not Found";
+        (*iter)->loc_path = "./default_error_pages/404.html";
         this->skip = 1;
         return ;
     }
@@ -177,8 +228,11 @@ void    Check_path::is_method_allowed_in_location(std::list<Client *>::iterator 
     }
     if ((*it) != "GET" && (*it) != "DELETE" && (*it) != "POST")
     {
-        std::cout << "-------> " << (*it) << std::endl;
-        std::cout<<"error / 405 method not allowed"<<std::endl;
+        // std::cout<<"error / 405 method not allowed"<<std::endl;
+        (*iter)->status_code = 405;
+        (*iter)->status = "Method Not Allowd";
+        (*iter)->loc_path = "./default_error_pages/405.html";
+        std::cout<<"loooool : "<<(*iter)->loc_path<<std::endl;
         this->skip = 1;
         return ;
     }

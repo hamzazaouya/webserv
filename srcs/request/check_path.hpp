@@ -20,7 +20,6 @@ class Check_path{
         std::string loc_path;
         location location_match;
         Check_path(std::list<Client *>::iterator iter, Server &serv);
-        Check_path(std::list<Client *>::iterator iter);
         Check_path();
 };
 #endif

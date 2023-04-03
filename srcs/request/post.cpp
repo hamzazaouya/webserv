@@ -72,7 +72,7 @@ void Post::Treat_Post(Client *ctl, Server &serv)
             Treat_directory(ctl);
         else
         {
-            ctl->loc_path += "/"
+            ctl->loc_path += "/";
             this->Treat_directory(ctl);
         }
     }

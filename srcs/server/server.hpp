@@ -12,7 +12,7 @@ class location;
 
 #define SOCKET              int
 #define PORT                int
-#define MAX_REQUEST_SIZE    8200
+#define MAX_REQUEST_SIZE    1024
 
 class Server
 {
@@ -37,13 +37,14 @@ class Server
         void    seperate_header(Client *client);
 
     public:
-
         int                     _request_size;
         char                    _request[MAX_REQUEST_SIZE + 1];
         fd_set                  _reads;
         std::list<location>     get_locations() const;
         int get_max_client_body_size() const {return (_max_client_body_size);}
-        std::map<std::string,   std::string>file_extensions ;
+        std::string             ft_get_extention(std::string str, std::list<Client *>::iterator iter);
+        std::map<std::string,   std::string>    file_extensions ;
+        void    respons(std::list<Client *>::iterator iter);
 
         Server();
         ~Server();

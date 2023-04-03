@@ -1,4 +1,10 @@
 # include "parsing/webserv.hpp"
+# include <csignal>
+
+void handleSIGPIPE(int signal) {
+	(void) signal;
+    // Do nothing, simply ignore the signal
+}
 
 int main(int argc, char **argv)
 {
@@ -7,5 +13,6 @@ int main(int argc, char **argv)
         std::cerr << "incorrect number of argument's"<<std::endl;
         exit(1);
     }
+    signal(SIGPIPE, handleSIGPIPE); // Ignore the SIGPIPE signal
     Webserv web(argv[1]);
 }
