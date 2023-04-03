@@ -7,6 +7,8 @@ Client::Client(): _received_data(0)
     this->_request_size = 0;
     _content_type = 0;
     this->_is_ready = 0;
+    this->header = 0;
+    this->file_is_open = 0;
 }
 
 Client::Client(const Client& rhs)
@@ -68,6 +70,29 @@ void    Client::generate_file_name( std::string &mime_type, std::map<std::string
     iter = file_extensions.find(mime_type);
     if(iter != file_extensions.end())
         this->file_path.append((*iter).second);
+}
+
+void Client::generate_extensions_2()
+{
+    std::ifstream file;
+    std::string str;
+    file.open("/Users/yel-aoun/Desktop/webserv/srcs/server/message.txt");
+    if (file)
+    {
+        while (file.good())
+        {
+            getline(file, str);
+            // std::cout<<str<<std::endl;
+            std::stringstream ss(str);
+            std::string key;
+            std::string value;
+            ss >> value;
+            ss >> key;
+            // std::cout<<key<<std::endl;
+            // std::cout<<value<<std::endl;
+            file_extensions_get.insert(std::make_pair(key,value));
+        }
+    }
 }
 
 Client::~Client() {}

@@ -10,7 +10,7 @@ class Request
 {
     private:
 
-        void        fill_map_request(std::string   &token);
+        void        fill_map_request(std::string   &token, int i);
         std::string from_hexa_to_decimal(std::string &str);
         int         get_decimal(std::string tmp);
 

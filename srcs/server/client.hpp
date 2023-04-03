@@ -11,6 +11,7 @@
 #include "../request/post.hpp"
 #include "../parsing/location.hpp"
 #include "../request/delete.hpp"
+#include "../request/get.hpp"
 typedef struct sockaddr_storage sock_storage;
 
 class Client
@@ -26,20 +27,32 @@ class Client
         int             _is_ready;
         DATA            _received_data;
         std::map<std::string, std::vector<std::string> >  request_pack;
+        std::map<std::string, std::string>                  file_extensions_get;
         std::string     method;
         std::string     boundary;
         std::string     path;
         std::string     loc_path;
         std::string     query;
+        std::vector<std::string>    error_pages;
         std::string     http;
         location location_match;
         Post            post;
         Delete          del;
+        Get             get;
         socklen_t       _address_length;
         sock_storage    _address;
         std::string     _request;
         std::ofstream   file;
         std::string                                         file_path;
+        std::ifstream   filein;
+        int             header;
+        int             file_is_open;
+        std::string     resp;
+        int             status_code;
+        std::string     status;
+        std::string     redirect_301;
+        std::string     list_files;
+        std::istringstream buffer;
         Client();
         ~Client();
         Client(const Client& rhs);
@@ -50,6 +63,7 @@ class Client
         void    set_sockfd(SOCKET sfd);
         void    set_received_data(DATA data);
         void    generate_file_name(std::string &mime_type, std::map<std::string, std::string> &file_extensions);
+        void    generate_extensions_2();
         DATA    get_received_data(void);
 };
 

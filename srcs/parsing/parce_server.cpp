@@ -21,47 +21,52 @@ int set_port(std::vector<std::string> &tokens)
     }
     else
     {
-        std::string str = *it;
-        std::string::const_iterator iter = str.begin();
-        if (iter != str.end())
-        {
-            for(; iter != str.end(); iter++)
+        // std::vector<int> ports;
+        // for(;it != tokens.end(); it++)
+        // {
+            std::string str = *it;
+            std::string::const_iterator iter = str.begin();
+            if (iter != str.end())
             {
-                if (!isdigit(*iter))
+                for(; iter != str.end(); iter++)
                 {
-                    std::cout<<"a port must contain numbers"<<std::endl;
+                    if (!isdigit(*iter))
+                    {
+                        std::cout<<"a port must contain numbers"<<std::endl;
+                        exit (1);
+                    }
+                }
+                if (++it != tokens.end())
+                {
+                    std::cout<<"just one value needed by port"<<std::endl;
                     exit (1);
                 }
-            }
-            if (++it != tokens.end())
-            {
-                std::cout<<"just one value needed by port"<<std::endl;
-                exit (1);
-            }
-            std::stringstream ss(str);
-            ss >> num;
-            if (str.length() != 4)
-            {
-                std::cout<<"your port must have 4 numbers"<<std::endl;
-                exit(1);
+                std::stringstream ss(str);
+                ss >> num;
+                if (str.length() != 4)
+                {
+                    std::cout<<"your port must have 4 numbers"<<std::endl;
+                    exit(1);
+                }
+            //     ports.push_back(num);
             }
             return (num);
-        }
+        // }
     }
     std::cout<<"you must set a value for the port"<<std::endl;
     exit (1);
 }
 
-// std::string set_host_name(std::vector<std::string> &tokens)
-// {
-//     std::vector<std::string>::iterator it = tokens.begin();
-//     if (++it == tokens.end())
-//         return ("127.0.0.1");
-//     else
-//     {
-//         return (*it);
-//     }
-// }
+std::string set_host_name(std::vector<std::string> &tokens)
+{
+    std::vector<std::string>::iterator it = tokens.begin();
+    if (++it == tokens.end())
+        return ("127.0.0.1");
+    else
+    {
+        return (*it);
+    }
+}
 
 int set_max_client_body_size(std::vector<std::string> &tokens)
 {
@@ -150,6 +155,7 @@ parce_server::parce_server(const std::list<std::string> &conf, int n_serv)
     int p = 0;
     int m = 0;
     int e = 0;
+    int h = 0;
     for(; it != conf.end(); it++)
     {
         if ((*it).empty())
@@ -169,7 +175,17 @@ parce_server::parce_server(const std::list<std::string> &conf, int n_serv)
         // WE SHOULD REPLACE THE WHITESPACES WITH NORMAL SPACES FIRST THEN SPLIT BY SPACE WHICH MEANS THAT WE DON'T NEED TO TRIM THE TAB ANYMORE
         std::vector<std::string> tokens = split(input);
         std::vector<std::string>::iterator tt = tokens.begin();
-        if (*tt == "port")
+        if (*tt == "host_name")
+        {
+            h++;
+            if (h != 1)
+            {
+                std::cout<<"you must use only one host_name in your server"<<std::endl;
+                exit (1);
+            }
+            this->host_name = set_host_name(tokens);
+        }
+        else if (*tt == "port")
         {
             p++;
             if (p != 1)
