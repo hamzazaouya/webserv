@@ -5,19 +5,30 @@
 #include "../parsing/webserv.hpp"
 
 
-Post::Post(): body_or_head(0), _post_type(0), _chunk_len(0), _hex_len(0) 
+Post::Post(): body_or_head(0), _post_type(0), _chunk_len(0), _hex_len(0), _is_matched(0) 
 {
     memset(this->_hex, 0, 20);
 }
 Post::~Post(){}
 
+int Post::check_post(Client *clt)
+{
+    if (_is_matched == 1)
+        return (1);
+    if (!clt->location_match.get_upload_pass().empty())
+    {
+        _is_matched = 1;
+        return (1);
+    }
+    return (0);
+}
 void    Post::call_post_func(Server &serv, Client *client)
 {
-    int x = Treat_Post(client, serv);
-    if(!is_created)
-        this->create_file(serv, client);
-    if (x == 0)
+    // int x = Treat_Post(client, serv);
+    if (_is_matched == 1)
     {
+        if(!is_created)
+            this->create_file(serv, client);
         switch(this->_post_type)
         {
             case 0:
@@ -26,20 +37,52 @@ void    Post::call_post_func(Server &serv, Client *client)
                 this->chunked_post(serv, client);
         }
     }
-    else if (x == 1)
-        std::cout << "CGI" << std::endl;
-    else
-        std::cout << "Error!" << std::endl;
+    // else if (x == 1)
+    //     std::cout << "CGI" << std::endl;
+    // else
+    //     std::cout << "Error!" << std::endl;
 }
 
-int Post::Treat_Post(Client *ctl, Server &serv)
+void Post::Treat_Cgi(Client *ctl)
 {
-    if (ctl->location_match.get_upload_pass().empty() && !ctl->location_match.get_cgi_pass().empty())
-        return (1);
-    else if (!ctl->location_match.get_upload_pass().empty())
-        return (0);
+    if (ctl->location_match.get_cgi_pass().empty())
+        std::cout << "SHOULD GET 403 FORBIDDEN" << std::endl;
     else
-        return(-1);
+        std::cout << "CGI HERE" << std::endl;
+}
+
+void Post::Treat_directory(Client *ctl)
+{
+    if (ctl->location_match.get_index().empty())
+        std::cout << "SHOULD GET 403 FORBIDDEN" << std::endl;
+    else
+        Treat_Cgi(ctl);
+}
+
+void Post::Treat_file(Client *ctl)
+{
+    Treat_Cgi(ctl);
+}
+
+void Post::Treat_Post(Client *ctl, Server &serv)
+{
+    DIR* dir = opendir(ctl->loc_path.c_str());
+    if (dir != NULL)
+    {
+        std::cout << "The client requested a directory" << std::endl;
+        if (ctl->loc_path[ctl->loc_path.size() - 1] == '/')
+            Treat_directory(ctl);
+        else
+            std::cout << "IMPLEMENT THE FUNCTION THAT YOUSSEF IS GONNA MAKE" << std::endl;
+        this->Treat_directory(ctl);
+    }
+    else if (fopen(ctl->loc_path.c_str(), "r") != NULL)
+    {
+        std::cout << "The client requested a file" << std::endl;
+        this->Treat_file(ctl);
+    }
+    else
+        std::cout << "404 NOT FOUND" << std::endl;
 }
 
 void    Post::create_file(Server &serv, Client *client)
@@ -58,4 +101,5 @@ void    Post::create_file(Server &serv, Client *client)
     if(access(const_cast<char *>(client->file_path.c_str()), F_OK))
         client->file.open(client->file_path, std::ios::binary | std::ios::app);
     this->is_created = true;
+    std::cout << "--->" << client->file_path.c_str() << std::endl;
 }

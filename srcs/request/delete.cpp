@@ -1,7 +1,7 @@
 #include "delete.hpp"
 #include "../server/client.hpp"
 #include "../server/server.hpp"
-#include <dirent.h>
+#include "../headers_cpp.hpp"
 
 
 Delete::Delete()
@@ -62,15 +62,31 @@ int deleteFolder(const char* folderPath) {
     return status;
 }
 
+char *read_from_file(std::string file)
+{
+	char *str;
+	str = (char *)malloc(sizeof(char) * 1024);
+    memset(str, 0, 1024);
+	int fd_file = open(file.c_str(),O_RDONLY);
+	int i = read(fd_file,str,1024);
+	str[i] = '\0';
+	return (str);
+}
 
 void Delete::delete_directory(Client *ctl, Server &serv)
 {
     if (!deleteFolder(ctl->loc_path.c_str()))
+    {
         std::cout << "SHOULD RETURN 204 NO CONTENT" << std::endl;
+        std::string header = "HTTP/1.1 204 NO CONTENT\nContent-Type: text/html\nContent-Length: 228\r\nConnection: closed\r\n\r\n";
+		// std::string body = "<!DOCTYPE html><html><head><title>404 Not Found</title></head></html>";
+        header += read_from_file("404error.html");
+        write(ctl->get_sockfd(),header.c_str(),header.length());
+    }
     else
     {
         if (access(ctl->loc_path.c_str(), W_OK) == 0)
-            std::cout << "SHOULD RETURN 500 INTERNAL SERVER ERROR" << std::endl;
+             std::cout << "SHOULD RETURN 500 INTERNAL SERVER ERROR" << std::endl;
         else
             std::cout << "SHOULD RETURN 403 FORBIDDEN" << std::endl; 
     }
@@ -104,7 +120,7 @@ void Delete::erase(Client *ctl, Server &serv)
     {
         std::cout << "The client requested a file" << std::endl;
         this->Treat_File(ctl, serv);
-    }
+    } 
     else
         std::cout << "errrrrrrrrrrrr" << std::endl;
 }

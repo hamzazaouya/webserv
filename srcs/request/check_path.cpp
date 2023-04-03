@@ -237,3 +237,5 @@ void    Check_path::is_method_allowed_in_location(std::list<Client *>::iterator 
         return ;
     }
 }
+
+

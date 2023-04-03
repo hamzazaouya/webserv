@@ -97,6 +97,7 @@ void    Server::serve_clients()
         {
             memset(this->_request, 0, MAX_REQUEST_SIZE + 1);
             this->_request_size = recv((*iter)->get_sockfd(), this->_request, MAX_REQUEST_SIZE, 0);
+    
             if (this->_request_size < 1)
             {
                 std::cerr << "Unexpected disconnect from << " << get_client_address(*iter) << std::endl;
@@ -123,8 +124,13 @@ void    Server::serve_clients()
                         {
                             (*iter)->init_post_data();
                             (*iter)->_request_type = true;
-                            this->seperate_header(*iter);
-                            (*iter)->post.call_post_func(*this, (*iter));
+                            if ((*iter)->post.check_post((*iter)) == 1)
+                            {
+                                this->seperate_header(*iter);
+                                (*iter)->post.call_post_func(*this, (*iter));
+                            }
+                            else
+                                (*iter)->post.Treat_Post((*iter), *this);
                         }
                         else if (req.method == "DELETE")
                             (*iter)->del.erase((*iter), *this);

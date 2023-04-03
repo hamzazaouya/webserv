@@ -17,6 +17,7 @@ class Post
         char            _hex[20];
         size_t          _hex_len;
         bool            _hex_ready;
+        int             _is_matched;
         std::string boundary;
 
         Post();
@@ -27,7 +28,11 @@ class Post
         void        normal_post(Server &server, Client *client);
         void        chunked_post(Server &server, Client *client);
         bool        check_hex();
-        int         Treat_Post(Client *ctl, Server &serv);
+        void        Treat_Post(Client *ctl, Server &serv);
+        int         check_post(Client *clt);
+        void        Treat_directory(Client *ctl);
+        void        Treat_file(Client *ctl);
+        void        Treat_Cgi(Client *ctl);
         // void        exec_head(std::string buff, Server &serv, std::string &path);
         // void        exec_body(std::string buff, Server &serv, std::string &path);
         // int         skip_hex(std::string body);

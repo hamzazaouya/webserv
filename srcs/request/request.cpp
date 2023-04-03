@@ -25,6 +25,7 @@ void    Request::fill_map_request(std::string   &buff_line, int i)
     std::stringstream ss(buff_line);
     std::string token;
     ss >> token;
+    //YOU SHO
     if (i == 0)
     {
         this->method = token;
