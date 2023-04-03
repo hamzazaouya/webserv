@@ -93,13 +93,16 @@ void location::FillIndex(std::string prompt)
 void location::FillRedirect(std::string prompt)
 {
     std::vector<std::string> substring = splitString(prompt, ' ');
-    if (substring.size() != 2)
+    if (substring.size() != 3)
     {
+        std::cout <<"== " << substring.size() << std::endl;
         std::cout << "Error! there's something wrong with the redirect parameter" << std::endl;
         exit (1);
     }
     std::vector<std::string>::iterator it = substring.begin() + 1;
-    this->redirect = *it;
+    for (; it != substring.end(); ++it)
+        this->redirect.push_back(*it);
+
 }
 
 void location::FillRoot(std::string prompt)

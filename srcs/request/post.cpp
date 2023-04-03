@@ -11,16 +11,10 @@ Post::Post(): body_or_head(0), _post_type(0), _chunk_len(0), _hex_len(0), _is_ma
 }
 Post::~Post(){}
 
-int Post::check_post(Client *clt)
+void Post::check_post(Client *clt)
 {
-    if (_is_matched == 1)
-        return (1);
     if (!clt->location_match.get_upload_pass().empty())
-    {
         _is_matched = 1;
-        return (1);
-    }
-    return (0);
 }
 void    Post::call_post_func(Server &serv, Client *client)
 {
@@ -37,6 +31,8 @@ void    Post::call_post_func(Server &serv, Client *client)
                 this->chunked_post(serv, client);
         }
     }
+    else
+        Treat_Post(client, serv);
     // else if (x == 1)
     //     std::cout << "CGI" << std::endl;
     // else
@@ -48,7 +44,9 @@ void Post::Treat_Cgi(Client *ctl)
     if (ctl->location_match.get_cgi_pass().empty())
         std::cout << "SHOULD GET 403 FORBIDDEN" << std::endl;
     else
+    {
         std::cout << "CGI HERE" << std::endl;
+    }
 }
 
 void Post::Treat_directory(Client *ctl)
@@ -73,8 +71,10 @@ void Post::Treat_Post(Client *ctl, Server &serv)
         if (ctl->loc_path[ctl->loc_path.size() - 1] == '/')
             Treat_directory(ctl);
         else
-            std::cout << "IMPLEMENT THE FUNCTION THAT YOUSSEF IS GONNA MAKE" << std::endl;
-        this->Treat_directory(ctl);
+        {
+            ctl->loc_path += "/"
+            this->Treat_directory(ctl);
+        }
     }
     else if (fopen(ctl->loc_path.c_str(), "r") != NULL)
     {

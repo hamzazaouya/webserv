@@ -94,18 +94,12 @@ void Delete::delete_directory(Client *ctl, Server &serv)
 
 void Delete::Treat_directory(Client *ctl, Server &serv)
 {
-    if (ctl->location_match.get_cgi_pass().empty())
         this->delete_directory(ctl, serv);
-    else
-        std::cout << "Directory Has CGI with DELETE METHOD" << std::endl;
 }
 
 void Delete::Treat_File(Client *ctl, Server &serv)
 {
-    if (ctl->location_match.get_cgi_pass().empty())
-        remove(ctl->loc_path.c_str());
-    else
-        std::cout << "File has CGI with DELETE METHOD" << std::endl;
+    remove(ctl->loc_path.c_str());
 }
 
 void Delete::erase(Client *ctl, Server &serv)
@@ -122,7 +116,7 @@ void Delete::erase(Client *ctl, Server &serv)
         this->Treat_File(ctl, serv);
     } 
     else
-        std::cout << "errrrrrrrrrrrr" << std::endl;
+        std::cout << "SHOULD RETURN 404 MOT FOUND" << std::endl;
 }
 Delete::~Delete()
 {

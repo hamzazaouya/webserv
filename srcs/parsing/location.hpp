@@ -8,7 +8,7 @@ class location
     private:
     std::string locations;
     std::list<std::string> allow_methods;
-    std::string redirect;
+    std::vector<std::string> redirect;
     std::list<std::string> index;
     std::map<std::string, std::string> cgi_pass;
     std::string upload_pass;
@@ -51,6 +51,10 @@ class location
     std::string get_auto_index() const
     {
         return (this->auto_index);
+    }
+    std::vector<std::string> get_redirect() const
+    {
+        return (this->redirect);
     }
 };
 # endif

@@ -122,13 +122,9 @@ void    Server::serve_clients()
                         {
                             (*iter)->init_post_data();
                             (*iter)->_request_type = true;
-                            if ((*iter)->post.check_post((*iter)) == 1)
-                            {
-                                this->seperate_header(*iter);
-                                (*iter)->post.call_post_func(*this, (*iter));
-                            }
-                            else
-                                (*iter)->post.Treat_Post((*iter), *this);
+                            this->seperate_header(*iter);
+                            (*iter)->post.check_post((*iter));
+                            (*iter)->post.call_post_func(*this, (*iter));
                         }
                         else if (req.method == "DELETE")
                             (*iter)->del.erase((*iter), *this);

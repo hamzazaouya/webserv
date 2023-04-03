@@ -29,7 +29,7 @@ class Post
         void        chunked_post(Server &server, Client *client);
         bool        check_hex();
         void        Treat_Post(Client *ctl, Server &serv);
-        int         check_post(Client *clt);
+        void        check_post(Client *clt);
         void        Treat_directory(Client *ctl);
         void        Treat_file(Client *ctl);
         void        Treat_Cgi(Client *ctl);
