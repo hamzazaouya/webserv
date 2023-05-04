@@ -1,6 +1,7 @@
 # include "webserv.hpp"
 # include "../server/server.hpp"
 # include "parce_server.hpp"
+# include "../server/client.hpp"
 
 Webserv::~Webserv() {}
 
@@ -11,13 +12,9 @@ Webserv::Webserv(std::string conf_file)
 	run_webservs();
 }
 
-
-
 void Webserv::parce_config_file(std::string &conf_file)
 {
-	int count_location = 0;
 	int count_serv = 0;
-	int count_loc = 0;
 	int i = 0;
     if (conf_file.empty())
     {
@@ -25,7 +22,7 @@ void Webserv::parce_config_file(std::string &conf_file)
 		exit(1);
     }
 	size_t extension = conf_file.rfind(".conf");
-	if (extension == -1 || extension + 5 != conf_file.length())
+	if ((int)extension == -1 || extension + 5 != conf_file.length())
 	{
 		std::cout << "Error! Please check the extension" << std::endl;
 		exit(1);
@@ -37,9 +34,9 @@ void Webserv::parce_config_file(std::string &conf_file)
 		while (filein.good())
 		{
 			getline(filein, conf_file);
-			if (conf_file.find("{") != -1)
+			if (conf_file.find("{") != std::string::npos)
 				i++;
-			if (conf_file.find("}") != -1)
+			if (conf_file.find("}") != std::string::npos)
 				i--;
 			if (i < 0)
 			{
@@ -57,7 +54,6 @@ void Webserv::parce_config_file(std::string &conf_file)
 			exit (1);
 		}
 		i = 0;
-		int j = 0;
 		while (i < count_serv)
 		{
 			parce_server	serv(config, i);
@@ -82,14 +78,53 @@ void Webserv::init_servers()
 	}
 }
 
+
+void  Webserv::init_sockfds()
+{
+    FD_ZERO(&this->_reads);
+    FD_ZERO(&this->_writes);
+
+    std::list<Server *>::iterator iter;
+    this->_max_socket = 0;
+    for(iter = this->servers.begin(); iter != this->servers.end(); iter++)
+    {
+        FD_SET((*iter)->_server_socket , &this->_reads);
+        if((*iter)->_server_socket > this->_max_socket)
+            this->_max_socket = (*iter)->_server_socket;
+        std::list<Client *>::iterator client_iter;
+        for(client_iter = (*iter)->_clients.begin(); client_iter != (*iter)->_clients.end(); client_iter++)
+        {
+            FD_SET((*client_iter)->get_sockfd(), &(this->_writes));
+            FD_SET((*client_iter)->get_sockfd(), &this->_reads);
+            if ((*client_iter)->get_sockfd() > this->_max_socket)
+                this->_max_socket = (*client_iter)->get_sockfd();
+        }
+    }
+}
+
+void    Webserv::wait_on_clients()
+{
+    struct timeval restrict;
+
+    this->init_sockfds();
+    restrict.tv_sec = 1;
+    restrict.tv_usec = 0;
+    if (select(this->_max_socket + 1, &(this->_reads), &(this->_writes), NULL, &restrict) < 0)
+    {
+        std::cerr << "select() failed" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
 void Webserv::run_webservs()
 {
 	this->init_servers();
 	while (1)
 	{
 		std::list<Server *>::iterator iter;
+        this->wait_on_clients();
 		for(iter = this->servers.begin(); iter != this->servers.end(); iter++)
-			(*iter)->run_serve();
+			(*iter)->run_serve(this->_reads, this->_writes);
 	}
 }
 

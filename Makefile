@@ -3,12 +3,12 @@ SOURCES = main.cpp parsing/webserv.cpp parsing/location.cpp parsing/parce_server
 					server/client.cpp server/server.cpp server/socket.cpp \
 					request/request.cpp request/post.cpp request/get.cpp \
 					request/check_path.cpp request/normal_post.cpp request/delete.cpp \
-					request/chunked_post.cpp 
+					request/chunked_post.cpp request/boundary.cpp
 OBJ_PATH  = objs
 SRC_PATH = srcs
 
 CC = c++
-CFLAGS = -fsanitize=address #-Wall -Wextra -Werror
+ CFLAGS =  -Wall -Wextra -Werror
 
 OBJS = $(addprefix $(OBJ_PATH)/,$(SOURCES:.cpp=.o))
 .PHONY: all clean fclean re

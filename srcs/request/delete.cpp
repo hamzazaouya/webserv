@@ -45,11 +45,11 @@ int deleteFolder(const char* folderPath) {
                 status = subStatus;
             }
         }
+
     }
 
     // Close the folder
     closedir(dir);
-
     // Delete the empty folder
     if (status == 0) {
         int subStatus = rmdir(folderPath);
@@ -58,65 +58,150 @@ int deleteFolder(const char* folderPath) {
             return subStatus;
         }
     }
-
     return status;
 }
 
-char *read_from_file(std::string file)
-{
-	char *str;
-	str = (char *)malloc(sizeof(char) * 1024);
-    memset(str, 0, 1024);
-	int fd_file = open(file.c_str(),O_RDONLY);
-	int i = read(fd_file,str,1024);
-	str[i] = '\0';
-	return (str);
-}
 
-void Delete::delete_directory(Client *ctl, Server &serv)
+void Delete::delete_directory(Client *ctl)
 {
     if (!deleteFolder(ctl->loc_path.c_str()))
     {
-        std::cout << "SHOULD RETURN 204 NO CONTENT" << std::endl;
-        std::string header = "HTTP/1.1 204 NO CONTENT\nContent-Type: text/html\nContent-Length: 228\r\nConnection: closed\r\n\r\n";
-		// std::string body = "<!DOCTYPE html><html><head><title>404 Not Found</title></head></html>";
-        header += read_from_file("404error.html");
-        write(ctl->get_sockfd(),header.c_str(),header.length());
+        std::vector<std::string> error = ctl->error_pages;
+        std::vector<std::string>::iterator it = error.begin();
+        if (it != error.end())
+        {
+           int num;
+           std::stringstream ss(*it);
+           ss >> num;
+           if (num == 204)
+           {
+               std::string path = "." + (*++it);
+               if (fopen(path.c_str(), "r"))
+               {
+                    ctl->loc_path = path;
+                    ctl->Fill_response_data(204, "No Content", path);
+                    return ;
+               }
+           }
+        }
+
+        ctl->Fill_response_data(204, "No Content", "./default_error_pages/204.html");
+        return ;
     }
     else
     {
         if (access(ctl->loc_path.c_str(), W_OK) == 0)
-             std::cout << "SHOULD RETURN 500 INTERNAL SERVER ERROR" << std::endl;
+        {
+            std::vector<std::string> error = ctl->error_pages;
+            std::vector<std::string>::iterator it = error.begin();
+            if (it != error.end())
+            {
+               int num;
+               std::stringstream ss(*it);
+               ss >> num;
+               if (num == 500)
+               {
+                   std::string path = "." + (*++it);
+                   if (fopen(path.c_str(), "r"))
+                   {
+                        ctl->loc_path = path;
+                        ctl->Fill_response_data(500, "Internal Server Error", path);
+                        return ;
+                   }
+               }
+            }
+            ctl->Fill_response_data(500, "Internal Server Error", "./default_error_pages/500.html");
+            return ;
+        }
         else
-            std::cout << "SHOULD RETURN 403 FORBIDDEN" << std::endl; 
+        {
+            std::vector<std::string> error = ctl->error_pages;
+            std::vector<std::string>::iterator it = error.begin();
+            if (it != error.end())
+            {
+               int num;
+               std::stringstream ss(*it);
+               ss >> num;
+               if (num == 403)
+               {
+                   std::string path = "." + (*++it);
+                   if (fopen(path.c_str(), "r"))
+                   {
+                        ctl->loc_path = path;
+                        ctl->Fill_response_data(403, "Forbidden", path);
+                        return ;
+                   }
+               }
+            }
+            ctl->Fill_response_data(403, "Forbidden", "./default_error_pages/403.html");
+            return ;
+        }
     }
 }
 
-void Delete::Treat_directory(Client *ctl, Server &serv)
+void Delete::Treat_directory(Client *ctl)
 {
-        this->delete_directory(ctl, serv);
+    this->delete_directory(ctl);
 }
 
-void Delete::Treat_File(Client *ctl, Server &serv)
+void Delete::Treat_File(Client *ctl)
 {
     remove(ctl->loc_path.c_str());
+    std::vector<std::string> error = ctl->error_pages;
+        std::vector<std::string>::iterator it = error.begin();
+        if (it != error.end())
+        {
+           int num;
+           std::stringstream ss(*it);
+           ss >> num;
+           if (num == 204)
+           {
+               std::string path = "." + (*++it);
+               if (fopen(path.c_str(), "r"))
+               {
+                    ctl->loc_path = path;
+                    ctl->Fill_response_data(204, "No Content", path);
+                    return ;
+               }
+           }
+        }
+        ctl->Fill_response_data(204, "No Content", "./default_error_pages/204.html");
+        return ;
 }
 
-void Delete::erase(Client *ctl, Server &serv)
+void Delete::erase(Client *ctl)
 {
     DIR* dir = opendir(ctl->loc_path.c_str());
     if (dir != NULL)
     {
-        std::cout << "The client requested a directory" << std::endl;
-        this->Treat_directory(ctl, serv);
+        this->Treat_directory(ctl);
+        closedir(dir);
     }
     else if (fopen(ctl->loc_path.c_str(), "r") != NULL)
-    {
-        std::cout << "The client requested a file" << std::endl;
-        this->Treat_File(ctl, serv);
-    } 
+        this->Treat_File(ctl);
     else
-        std::cout << "SHOULD RETURN 404 MOT FOUND" << std::endl;
+    {
+        std::vector<std::string> error = ctl->error_pages;
+        std::vector<std::string>::iterator it = error.begin();
+        if (it != error.end())
+        {
+           int num;
+           std::stringstream ss(*it);
+           ss >> num;
+           if (num == 404)
+           {
+               std::string path = "." + (*++it);
+               if (fopen(path.c_str(), "r"))
+               {
+                    ctl->loc_path = path;
+                    ctl->Fill_response_data(404, "Not Found", path);
+                    return ;
+               }
+           }
+        }
+        ctl->Fill_response_data(404, "Not Found", "./default_error_pages/404.html");
+        return ;
+    }
 }
 Delete::~Delete()
 {

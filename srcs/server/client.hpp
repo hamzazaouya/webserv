@@ -21,9 +21,13 @@ class Client
         SOCKET  _sockfd;
         
     public:
+        size_t          _content_len;
         int             _request_size;
         int             _request_type;
         int             _content_type;
+        int             length;
+        std::string     cont_type;
+        int             is_done;
         int             _is_ready;
         DATA            _received_data;
         std::map<std::string, std::vector<std::string> >  request_pack;
@@ -43,7 +47,7 @@ class Client
         sock_storage    _address;
         std::string     _request;
         std::ofstream   file;
-        std::string                                         file_path;
+        std::string     file_path;
         std::ifstream   filein;
         int             header;
         int             file_is_open;
@@ -53,7 +57,15 @@ class Client
         std::string     redirect_301;
         std::string     list_files;
         std::istringstream buffer;
+        int             header_flag;
+        std::string     cgi_header;
+        char            **env;
+        int             pid;
+        bool            isCgiDone;
+        int             fd;
+        std::string     exec_path;
         Client();
+        Client(char **env);
         ~Client();
         Client(const Client& rhs);
 
@@ -65,6 +77,10 @@ class Client
         void    generate_file_name(std::string &mime_type, std::map<std::string, std::string> &file_extensions);
         void    generate_extensions_2();
         DATA    get_received_data(void);
+        void    Fill_response_data(int status_code, std::string status, std::string path);
 };
-
+int	ft_strlenc(char **c);
+void free_str_array(char **str, int size);
+char	**ft_strdupc(char **env);
+std::string create_temp_file();
 #endif

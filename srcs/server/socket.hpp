@@ -17,6 +17,7 @@ class Socket
 
         SOCKET      _sockfd;
         int         _port;
+        std::string _host;
 
         void    init_socket();
         void    bind_socket();
@@ -24,7 +25,7 @@ class Socket
 
     public:
 
-        Socket(int  port);
+        Socket(int  port, std::string host);
         Socket(const Socket &rhs);
         ~Socket();
 

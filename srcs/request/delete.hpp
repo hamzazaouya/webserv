@@ -7,9 +7,9 @@ class Delete
     public:
         Delete();
         ~Delete();
-        void delete_directory(Client *ctl, Server &serv);
-        void Treat_directory(Client *ctl, Server &serv);
-        void Treat_File(Client *ctl, Server &serv);
-        void erase(Client *ctl, Server &serv);
+        void delete_directory(Client *ctl);
+        void Treat_directory(Client *ctl);
+        void Treat_File(Client *ctl);
+        void erase(Client *ctl);
 };
 #endif

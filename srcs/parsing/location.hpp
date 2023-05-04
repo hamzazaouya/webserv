@@ -17,7 +17,7 @@ class location
     std::string root;
     location(){}
     ~location(){}
-    location(const std::list<std::string> &config, int j);
+    location(const std::list<std::string> &config, int j, int n_serv);
     void FillLocation(std::string prompt);
     void FillAllow_methods(std::string prompt);
     void FillIndex(std::string prompt);

@@ -13,7 +13,7 @@ std::vector<std::string> split(const std::string &str)
 int set_port(std::vector<std::string> &tokens)
 {
     std::vector<std::string>::iterator it = tokens.begin();
-    int num;
+    int num = 0;
     if (++it == tokens.end())
     {
         std::cout<<"you must set a value for the port"<<std::endl;
@@ -139,6 +139,7 @@ std::vector<std::string> set_error_page(std::vector<std::string> &tokens)
 
 parce_server::parce_server(const std::list<std::string> &conf, int n_serv)
 {
+    int x = n_serv;
     int ind = 0;
     int count_loc = 0;
     int j = 0;
@@ -156,18 +157,19 @@ parce_server::parce_server(const std::list<std::string> &conf, int n_serv)
     int m = 0;
     int e = 0;
     int h = 0;
+    int s = 0;
     for(; it != conf.end(); it++)
     {
         if ((*it).empty())
             for (; (*it).empty() != 0; ++it);
-        if ((it->find("location") != -1 && it->rfind("{") != -1) && ind)
+        if ((it->find("location") != std::string::npos && it->rfind("{") != std::string::npos) && ind)
             break;
-        if (it->find("location") != -1 && it->rfind("{") != -1)
+        if (it->find("location") != std::string::npos && it->rfind("{") != std::string::npos)
         {
             count_loc++;
             ind++;
         }
-        if (it->rfind("}") != -1 && it->rfind("};") == -1)
+        if (it->rfind("}") != std::string::npos && it->rfind("};") == std::string::npos)
             ind--;
         if (it->rfind("};") != std::string::npos)
             break;
@@ -175,6 +177,15 @@ parce_server::parce_server(const std::list<std::string> &conf, int n_serv)
         // WE SHOULD REPLACE THE WHITESPACES WITH NORMAL SPACES FIRST THEN SPLIT BY SPACE WHICH MEANS THAT WE DON'T NEED TO TRIM THE TAB ANYMORE
         std::vector<std::string> tokens = split(input);
         std::vector<std::string>::iterator tt = tokens.begin();
+        if (*tt == "server")
+        {
+            s++;
+            if (s != 1)
+            {
+                std::cout<<"you can' t have a server inside a server"<<std::endl;
+                exit(1);
+            }
+        }
         if (*tt == "host_name")
         {
             h++;
@@ -238,8 +249,9 @@ parce_server::parce_server(const std::list<std::string> &conf, int n_serv)
             std::cout << "Error! Putting a location block inside another one doesn't work" << std::endl;
             exit (1);
         }
-		location loc(conf, j);
+		location loc(conf, j, x);
 		this->locations.push_back(loc);
 		j++;
 	}
+
 }

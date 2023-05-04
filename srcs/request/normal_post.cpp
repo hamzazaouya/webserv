@@ -5,26 +5,24 @@
 
 void    Post::normal_post(Server &serv, Client *client)
 {
-        std::list<location> loc = serv.get_locations();
-        for (std::list<location>::iterator it = loc.begin(); it != loc.end(); ++it)
+    // i have to write byte by byte because i have to check for content_length.
+    // if i change the content_length to some number not <calculated when request is sent> ?
+    int i = 0;
+    while (i < serv._request_size && client->_content_len)
+    {
+        client->file.write(serv._request + i, 1);
+        i++;
+        client->_content_len--;
+    }
+    if(client->_content_len == 0)
+    {
+        if (!client->exec_path.empty())
         {
-            if (it->get_locations() == client->path)
-            {
-                if(client->file_path.empty())
-                {
-                    std::map<std::string, std::vector<std::string> >::iterator iter;
-                    iter = client->request_pack.find("Content-Type");
-                    client->file_path = it->get_upload_pass();
-                    client->generate_file_name(*((*iter).second.begin()), serv.file_extensions);
-                }
-                if (access(it->get_upload_pass().c_str(), F_OK))
-                    mkdir(it->get_upload_pass().c_str(), 0777);
-                if(access(const_cast<char *>(client->file_path.c_str()), F_OK))
-                    client->file.open(client->file_path, std::ios::binary | std::ios::app);
-                // i have to write byte by byte because i have to check for content_length.
-                // if i change the content_length to some number not <calculated when request is sent> ?
-                client->file.write(serv._request, serv._request_size);
-            }
+            client->is_done = 1 ;
+            _is_matched = 0;
         }
-
+        else
+            client->Fill_response_data(201, "Created", "./default_error_pages/201.html");
+        client->file.close();
+    }
 }

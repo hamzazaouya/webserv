@@ -26,14 +26,12 @@ bool Post::check_hex()
 void    Post::chunked_post(Server &serv, Client *client)
 {
     int buff_read = 0;
-    char *str;
 
-    this->_hex_ready = false;
     while(buff_read < serv._request_size)
     {
         if(!this->_chunk_len)
         {
-
+            this->_hex_ready = false;
             while(buff_read < serv._request_size)
             {
                 this->_hex[this->_hex_len++] = serv._request[buff_read++];
@@ -48,14 +46,21 @@ void    Post::chunked_post(Server &serv, Client *client)
             if(!this->_chunk_len)
             {
                 client->file.close();
-                client->_is_ready = 1;
+                if (!client->exec_path.empty())
+                {
+                    _is_matched = 0;
+                    client->is_done = 1;
+                }
+                else
+                   client->Fill_response_data(201, "Created", "./default_error_pages/201.html");
                 break ;
             }
         }
-        while(buff_read < serv._request_size && this->_chunk_len)
+        while(buff_read < serv._request_size && this->_chunk_len && client->_content_len)
         {
             client->file.write(serv._request + buff_read, 1);
             this->_chunk_len--;
+            client->_content_len--;
             buff_read++;
         }
     }

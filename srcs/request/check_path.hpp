@@ -12,7 +12,7 @@ class Check_path{
         void    check_transfer_encoding(std::list<Client *>::iterator iter, Server &serv);
         void    check_uri(std::list<Client *>::iterator iter, Server &serv);
         void    get_matched_location_for_request_uri(std::list<Client *>::iterator iter, Server &serv);
-        void    is_location_has_redirection(std::list<Client *>::iterator iter, Server &serv);
+        void    is_location_has_redirection(std::list<Client *>::iterator iter);
         void    is_method_allowed_in_location(std::list<Client *>::iterator iter);
     public:
 

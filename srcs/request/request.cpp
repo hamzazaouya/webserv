@@ -18,6 +18,8 @@ Request::Request(char *buff, std::list<Client *>::iterator   iter): _content_typ
     (*iter)->http = this->http;
     (*iter)->_content_type = this->_content_type;
     (*iter)->boundary = this->boundary;
+    //if(this->request.find("Content-Type") == this->request.end())
+        //throw exception
 }
 
 void    Request::fill_map_request(std::string   &buff_line, int i)
@@ -54,8 +56,8 @@ void    Request::fill_map_request(std::string   &buff_line, int i)
             value.push_back(token);
             if (ss >> token)
             {
-                value.push_back(token);
                 this->_content_type = 1;
+                value.push_back(token);
                 this->boundary = &token[9];
             }   
         }
