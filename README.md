@@ -1,127 +1,63 @@
 # webserv
 
-![webserv](https://i.imgur.com/7rVOORs.png)
+42 project, recoding our own web server in C++. A program capable of running an HTTP server, handling requests, and parsing configuration files.
 
-## Description
+Team : [cclaude](https://github.com/cclaude42) / [frthierr](https://github.com/Franciszer) / [hbaudet](https://github.com/hbaudet)
 
-webserv is a HTTP/1.1 server written in C++98. It must be conditionnal compliant with RFC 7230 to 7235.
+[Subject](https://cdn.intra.42.fr/pdf/pdf/13265/en.subject.pdf)
 
-## Usage
+## Resources
 
-```shell
-# Compile the sources
-make
-```
-```shell
-# Run the server
-./webserv [options] [config_file]
-```
-#### Options
-- ```-h, --help```  : Display help text
-- ```-t, --test```  : Test the config file, dump it and exit
-- ```-l, --log [LEVEL]```  : Set the log level (between 0 and 2)
-- ```-u, --uri```  : Keep location uri on rooting (similar to nginx)
+### Server setup
 
-```
-$ ./webserv -h
+[How to build a simple HTTP server](https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa)
 
-Usage: webserv [options] [config_file]
+[Simple server with C++](https://ncona.com/2019/04/building-a-simple-server-with-cpp/)
 
-Options:
-  -h, --help         : this help text
-  -l, --log [LEVEL]  : set log level (between 0 and 2)
-  -t, --test         : test config and exit
-  -u, --uri          : keep location uri on rooting (similar to nginx)
-```
+[C++ Web Programming](https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm)
 
-## Configuration File
+### HTTP 1.1 (standard to follow) :
 
-### Directives
+[HTTP/1.1 (RFC 2616)](https://www.rfc-editor.org/rfc/rfc2616.html)
 
-#### workers : ```workers number;```
+[HTTP/1.1 : Message Syntax and Routing (RFC 7230)](https://www.rfc-editor.org/rfc/rfc7230.html)
 
-sets a number of workers thread
+[HTTP/1.1 : Semantics and Content (RFC 7231)](https://www.rfc-editor.org/rfc/rfc7231.html)
 
-#### location : ```location [ = | ~ | ~* | ^~ ] uri;```
+[HTTP/1.1 : Conditional Requests (RFC 7232)](https://www.rfc-editor.org/rfc/rfc7232.html)
 
-sets configuration depending on the given uri.
+[HTTP/1.1 : Range Requests (RFC 7233)](https://www.rfc-editor.org/rfc/rfc7233.html)
 
-#### listen : ```listen address[:port];``` or ```listen port;```
+[HTTP/1.1 : Caching (RFC 7234)](https://www.rfc-editor.org/rfc/rfc7234.html)
 
-bind the given address to the port. if no address is given, binds 0.0.0.0. if no port is given, binds 80.
+[HTTP/1.1 : Authentication (RFC 7235)](https://www.rfc-editor.org/rfc/rfc7235.html)
 
-#### server_name : ```server_name name ...;```
+### Other HTTP (legacy / future) :
 
-sets names of a virtual server.
+[HTTP/1.0 (RFC 1945)](https://www.rfc-editor.org/rfc/rfc1945.html)
 
-#### root : ```root path;```
+[HTTP/2 (RFC 7240)](https://www.rfc-editor.org/rfc/rfc7540.html)
 
-sets the directory for requests.
+[HTTP/2 : Header Compression (RFC 7241)](https://www.rfc-editor.org/rfc/rfc7541.html)
 
-#### auth : ```auth login:password;```
+[FTP (RFC 959)](https://www.rfc-editor.org/rfc/rfc959.html)
 
-restrict a route to a user.
+### HTTP Header Syntax
 
-#### error_page : ```error_page code ... uri;```
+[HTTP Request Methods](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods)
 
-defines the URI that will be shown for the specified errors.
+[HTTP Status Codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
 
-#### upload : ```upload directory;```
+[HTTP Header Break Style](https://stackoverflow.com/questions/5757290/http-header-line-break-style)
 
-defines a directory to upload file.
+### Select and non-blocking
 
-#### autoindex : ```autoindex on | off;``` (default off)
+[Select](https://www.lowtek.com/sockets/select.html)
 
-enables or disables the directory listing output.
+[Non-blocking I/O](https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_72/rzab6/xnonblock.htm)
 
-#### index : ```index file ...;```
+### CGI
 
-defines files that will be used as an index.
+[CGI : Getting Started](http://www.mnuwer.dbasedeveloper.co.uk/dlearn/web/session01.htm)
 
-#### cgi : ```cgi extension cgi_path;```
-
-defines a CGI binary that will be executed for the given extension.
-
-#### cgi-bin : ```cgi-bin folder_path;``` (default ./cgi-bin)
-
-defines a folder where to search CGI binaries.
-
-### Example
-
-```
-workers 4;
-
-server {
-  listen 80;
-
-  root www;
-  error_page 404 /my_errors/404.html;
-
-  location / {
-    index index.html;
-  }
-  
-  location /data {
-    cgi .php php-cgi;
-  }
-
-  location = /autoindex/ {
-    root www/data;
-    autoindex on;
-  }
-  
-  location /my_errors {
-    root www/errors;
-  }
-}
-```
-
-## Sources
-- [Beej's Guide to Network Programming](http://beej.us/guide/bgnet/)
-- [Server/Location matching](https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms)
-- [Configuration File](http://nginx.org/en/docs/dirindex.html)
-
-## Testers
-- [webserv_tester](https://github.com/acoudert/webserv_tester) by [@acoudert](https://github.com/acoudert)
-- [webserv_tester](https://github.com/fredrikalindh/webserv_tester) by [@fredrikalindh](https://github.com/fredrikalindh)
-- 42 tester :)
+[CGI 1.1 Documentation](http://www.wijata.com/cgi/cgispec.html#4.0)
